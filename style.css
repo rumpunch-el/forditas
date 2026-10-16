@@ -1,0 +1,740 @@
+
+/* ==========================================================================
+   1. VÁLTOZÓK
+   ========================================================================== */
+:root {
+    /* Színek */
+    --paper:  #f7f2e9;
+    --ink:    #33241a;      /* nyomdafesték: sötétebb, mint a régi #493322 */
+    --muted:  #80684b;
+    --line:   #b9a17c;
+    --hair:   rgb(91 62 50 / 28%);   /* hajszálvékony vonalak (Y-stílus) */
+
+    /* Betűk */
+    --font-text: "EB Garamond", "Times New Roman", serif;
+    --font-ui:   "Jost", "Helvetica Neue", Arial, "Hiragino Sans",
+                 "Noto Sans CJK JP", sans-serif;   /* a 【 】 jelek tartalék fontja */
+
+    /* Méretek */
+    --reading-size: 1.18rem;               /* a Betűméret választó állítja */
+    --column: 680px;                        /* olvasóoszlop szélessége */
+    --landscape-image: url("../images/");
+
+}
+
+
+/* ==========================================================================
+   2. ALAP
+   ========================================================================== */
+* { box-sizing: border-box; }
+
+html {
+    scroll-behavior: smooth;
+
+    /* Ismétlődő papírtextúra (1000 × 1000 px) a teljes oldal hátterén.
+       A html elemen van (nem a body-n), hogy minden réteg fölött megbízhatóan
+       a legalsó réteg legyen.
+       – középről indul, vízszintesen és függőlegesen is ismétlődik */
+    background-color: var(--paper);          /* tartalék szín, amíg a kép betölt */
+   
+}
+/* Háttértextúra külön rétegen, hogy az átlátszósága állítható legyen */
+html { position: relative; }
+
+html::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    background-image: url("../images/textures.png");
+    background-repeat: repeat;
+    background-position: center center;
+    background-size: 1000px 1000px;
+    opacity: .28;
+}
+body {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--font-text);
+    line-height: 1.8;
+    overflow-x: hidden;
+}
+
+/* Y-stílusú apró, ritkított, nagybetűs felirat (újrahasznosítható) */
+.label,
+.bracket-label {
+    font-family: var(--font-ui);
+    font-size: .68rem;
+    font-weight: 400;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+a { color: inherit; }
+
+
+/* ==========================================================================
+   3. HÁTTÉR – opcionális tájkép-parallax (csak nagy kijelzőn)
+   ========================================================================== */
+.parallax {
+    display: none;
+    position: fixed;
+    z-index: -1;
+    inset: -8vh -5vw;
+    pointer-events: none;
+    perspective: 1000px;
+    /* A tájkép "multiply" módban a textúra FÖLÖTT ül: a papírminta átlátszik rajta,
+       nem takarja el (korábban a világos átfedő színátmenet kitakarta). */
+    background-image: var(--landscape-image);
+    background-size: cover;
+    background-position: center;
+    mix-blend-mode: multiply;
+    opacity: .38;
+    transform:
+        translate3d(0, var(--py, 0), 0)
+        scale(1.04)
+        rotateX(var(--tilt, 0deg));
+    will-change: transform;
+}
+
+@media (min-width: 900px) and (min-height: 500px) {
+    .parallax { display: block; }
+}
+
+
+/* ==========================================================================
+   4. FEJLÉC (Y-stílus: bal oldalon menü, középen név, jobbra megjegyzés)
+      – félig áttetsző, blur, lefelé görgetve elrejtőzik
+   ========================================================================== */
+.site-header {
+    position: fixed;
+    z-index: 30;
+    inset: 0 0 auto 0;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 1rem;
+    padding: 16px clamp(14px, 4vw, 56px);
+    /* iOS-stílus: nincs szín, vonal vagy árnyék – csak az elmosás */
+    background: transparent;
+    backdrop-filter: blur(20px) saturate(1.6);
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    transform: translateY(0);
+    transition: transform .32s ease, opacity .32s ease;
+}
+
+.site-header.is-hidden {
+    transform: translateY(-110%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Bal oldali menüsor – a kis felső szám a Y-on látható "Shop 50" mintára */
+.header-nav {
+    display: flex;
+    gap: clamp(16px, 2.4vw, 34px);
+}
+
+.header-nav a,
+.site-menu a {
+    font-family: var(--font-ui);
+    font-size: .72rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--ink);
+}
+
+.header-nav a { padding: 4px 0; border-bottom: 1px solid transparent; transition: border-color .2s ease; }
+.header-nav a:hover { border-bottom-color: var(--ink); }
+
+sup.count {
+    margin-left: .3em;
+    font-size: .62em;
+    letter-spacing: 0;
+    color: var(--muted);
+    vertical-align: super;
+}
+
+/* Középen a név */
+.brand {
+    justify-self: center;
+    font-size: 1.15rem;
+    font-weight: 500;
+    letter-spacing: .34em;
+    text-transform: uppercase;
+    text-indent: .34em;       /* a ritkítás miatti optikai középre igazítás */
+    white-space: nowrap;
+}
+
+/* Jobb oldalon a megjegyzés (a menügomb számára hely marad) */
+.header-note {
+    justify-self: end;
+    padding-right: 52px;
+    color: var(--muted);
+    font-size: .88rem;
+    font-style: italic;
+}
+
+@media (max-width: 900px) {
+    .header-nav,
+    .header-note { display: none; }
+    .site-header { grid-template-columns: 1fr; }
+    .brand { font-size: 1rem; letter-spacing: .28em; }
+}
+
+
+/* ==========================================================================
+   5. MENÜGOMB ÉS LEGÖRDÜLŐ MENÜ
+      A gomb külön marad a jobb felső sarokban, amikor a fejléc elbújik.
+   ========================================================================== */
+.menu-toggle {
+    position: fixed;
+    z-index: 50;
+    top: 10px;
+    right: clamp(12px, 3vw, 34px);
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    box-shadow: none;
+    cursor: pointer;
+    transition: transform .32s ease, opacity .32s ease;
+}
+
+/* Lefelé görgetve a fejléccel együtt eltűnik, felfelé görgetve együtt tér vissza */
+.menu-toggle.is-hidden {
+    transform: translateY(-90px);
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* A két függőleges vonal animált X-szé alakul */
+.menu-icon { position: relative; width: 18px; height: 20px; }
+
+.menu-icon::before,
+.menu-icon::after {
+    content: "";
+    position: absolute;
+    left: 8px;
+    top: 1px;
+    width: 2px;
+    height: 18px;
+    border-radius: 2px;
+    background: var(--ink);
+    transition: transform .28s ease;
+}
+.menu-icon::before { transform: translateY(-4px) rotate(90deg); }
+.menu-icon::after  { transform: translateY( 4px) rotate(90deg); }
+
+.menu-toggle[aria-expanded="true"] .menu-icon::before { transform: translateX(0) rotate(45deg); }
+.menu-toggle[aria-expanded="true"] .menu-icon::after  { transform: translateX(0) rotate(-45deg); }
+
+.site-menu {
+    position: fixed;
+    z-index: 40;
+    top: 64px;
+    right: clamp(12px, 3vw, 34px);
+    width: min(300px, calc(100vw - 24px));
+    padding: 10px 16px 14px;
+    border: 1px solid var(--hair);
+    background: rgb(234 217 183 / 50%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 12px 32px rgb(67 44 20 / 15%);
+    opacity: 0;
+    transform: translateY(-8px) scale(.98);
+    transform-origin: top right;
+    pointer-events: none;
+    transition: opacity .22s ease, transform .22s ease;
+}
+
+.site-menu.is-open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+/* Hajszálvonallal elválasztott menüpontok, jobbra a sorszám */
+.site-menu a {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 13px 4px;
+    border-bottom: 1px solid var(--hair);
+}
+.site-menu a:last-child { border-bottom: none; }
+.site-menu a:hover { background: linear-gradient(135deg, #f4e8cd, #c6aa7e); }
+
+
+/* ==========================================================================
+   6. FŐ OSZLOP ÉS CIKKFEJ
+      Sorrend (Y mintájára): dátum → cím → 【címke】 → "Bejegyzés" → bevezető
+   ========================================================================== */
+main {
+    width: min(var(--column), calc(100% - 36px));
+    margin: 120px auto 0;
+}
+
+.article-head { text-align: center; }
+
+.article-date { display: block; margin-bottom: 18px; }
+
+h1 {
+    margin: 0 0 18px;
+    font-size: clamp(2.4rem, 6vw, 4.2rem);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: .01em;
+}
+
+.index-tag { margin: 0 0 34px; }
+
+.title-image {
+    width: min(100%, 1000px);
+    aspect-ratio: 1;
+    margin: 0 auto 34px;
+    border: 1px solid var(--line);
+    background:
+        linear-gradient(#ead9b722, #5b3e3220),
+        url("../images/title-square.png") center / cover no-repeat,
+        #d7c29d;
+    box-shadow: 0 8px 24px #432c141f;
+}
+
+.entry-label {
+    display: block;
+    margin-bottom: 14px;
+    padding-top: 22px;
+    border-top: 1px solid var(--hair);
+}
+
+.intro {
+    max-width: 570px;
+    margin: 0 auto 30px;
+    color: #6f563d;
+    font-size: 1.12rem;
+    font-style: italic;
+}
+
+/* Zeneindító gomb a bevezető alatt */
+.intro-music {
+    display: flex;
+    justify-content: center;
+    margin: 0 auto 70px;
+}
+
+
+/* ==========================================================================
+   7. GOMBOK, LEGÖRDÜLŐ, CSÚSZKA (közös megjelenés)
+   ========================================================================== */
+button,
+select {
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    background: rgb(241 228 200 / 55%);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-size: .7rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    padding: 9px 13px;
+    cursor: pointer;
+    transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+button:hover,
+select:hover {
+    border-color: #8e6b43;
+    background: linear-gradient(135deg, #f8edda, #d6bd92);
+    box-shadow: 0 3px 10px rgb(67 44 20 / 14%);
+}
+
+button:active { background: linear-gradient(135deg, #c6aa7e, #ead9b7); }
+
+button:focus-visible,
+select:focus-visible,
+input:focus-visible,
+a:focus-visible {
+    outline: 2px solid #8e6b43;
+    outline-offset: 3px;
+}
+
+input[type="range"] { width: 76px; accent-color: #6b4c30; }
+
+.intro-music-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 24px;
+    font-size: .74rem;
+}
+
+.intro-music-button:hover { transform: translateY(-2px); }
+.intro-music-button.is-playing { background: rgb(198 170 126 / 40%); border-color: #8e6b43; }
+
+.intro-music-icon {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex-shrink: 0;
+}
+
+
+/* ==========================================================================
+   8. A NOVELLA SZÖVEGE – "NYOMTATOTT" HATÁS
+      Régi nyomdai szedéshibák, betűélek érintetlenül:
+        – a betűk éle, színe, vastagsága NEM változik (nincs szűrő, árnyék, elmosás)
+        – a betűközök kis csoportonként véletlenszerűen változnak
+        – néhány betű alig észrevehetően elfordul, fel- vagy lecsúszik
+      A véletlen részeket a SCRIPT 8. szakasza készíti el betöltéskor
+      (rögzített magértékkel, tehát minden betöltésnél ugyanúgy néz ki).
+      A HTML-ben a szöveg tiszta marad: <div class="paragraph"><p>…</p></div>
+   ========================================================================== */
+#story { position: relative; }
+
+.chapter-title {
+    margin: 90px 0 26px;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: .02em;
+    scroll-margin-top: 95px;
+}
+
+/* Nyomdai elválasztó után a fejezetcím közelebb kerül hozzá */
+.divider + .chapter-title { margin-top: 28px; }
+
+.chapter-roman {
+    display: block;
+    margin-bottom: 6px;
+    font-family: var(--font-ui);
+    font-size: .68rem;
+    font-style: normal;
+    letter-spacing: .3em;
+    color: var(--muted);
+}
+
+.paragraph {
+    position: relative;
+    scroll-margin-top: 95px;
+}
+
+/* Bekezdésszám a margón – csak széles kijelzőn, apró 【 】 címkével */
+.paragraph::before {
+    content: "【" attr(data-number) "】";
+    display: none;
+    position: absolute;
+    top: .55em;
+    left: -4.4rem;
+    width: 3.6rem;
+    text-align: right;
+    font-family: var(--font-ui);
+    font-size: .6rem;
+    letter-spacing: .08em;
+    color: var(--muted);
+    opacity: .75;
+}
+
+@media (min-width: 1000px) {
+    .paragraph::before { display: block; }
+}
+
+.paragraph p {
+    margin: 0;
+    font-size: var(--reading-size);
+    line-height: 1.72;
+    text-align: justify;
+    text-indent: 1.7em;               /* könyvszerű behúzás, nincs bekezdések közti hézag */
+    hyphens: auto;
+    -webkit-hyphens: auto;
+    text-wrap: pretty;
+    font-kerning: normal;
+    text-rendering: optimizeLegibility;
+}
+
+/* Fejezet első bekezdése: nincs behúzás, kapitális első sor, iniciálé */
+.paragraph--chapter p { text-indent: 0; }
+
+.paragraph--chapter p::first-line {
+    font-variant-caps: small-caps;
+    letter-spacing: .05em;
+}
+
+.paragraph--chapter p::first-letter {
+    float: left;
+    margin: .04em .1em 0 0;
+    padding: 0;
+    font-size: 3.5em;
+    font-weight: 500;
+    line-height: .78;
+    color: #2a1d13;
+}
+
+/* Szedéshibás betű: a SCRIPT csomagolja be (elfordulás, fel/le csúszás,
+   egyedi oldalirányú hézag – a konkrét értékeket inline stílusként kapja) */
+.paragraph .t { display: inline-block; }
+
+/* Szedéshibás betűt tartalmazó szó: önálló doboz, amelyen belül nincs
+   sorkizárás és sortörés (különben a böngésző a betű mellett megnyújtaná a teret) */
+.paragraph .w-set {
+    display: inline-block;
+    white-space: nowrap;
+    text-align: left;
+    text-indent: 0;        /* a bekezdés behúzását ne örökölje */
+}
+
+@media (max-width: 700px) {
+    /* telefonon nincs szóköz-nyújtás: balra zárt */
+    .paragraph p { text-align: left; }
+}
+
+
+/* ==========================================================================
+   9. JELENETKÉPEK (Y: ábra + 【FIG 01.】 képaláírás)
+   ========================================================================== */
+.scene { margin: 44px 0 52px; }
+
+.scene-image {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    border: 1px solid var(--line);
+    background-position: center;
+    background-size: cover;
+    background-color: #d7c29d;
+    color: var(--ink);
+    /* a kép is "nyomtatottnak" látszik: kissé fakó, barnás */
+    filter: sepia(.22) saturate(.85) contrast(.96);
+}
+
+.scene-image span {
+    padding: 8px 14px;
+    background: #f1e4c8d9;
+    font-family: var(--font-ui);
+    font-size: .7rem;
+    letter-spacing: .1em;
+}
+
+.scene1 {
+    background-image:
+        linear-gradient(#ead9b722, #5b3e3220),
+        url("../images/scene-1.png"),
+        linear-gradient(135deg, #d7c29d, #8c785c);
+}
+.scene2 {
+    background-image:
+        linear-gradient(#ead9b722, #5b3e3220),
+        url("../images/scene-2.png"),
+        linear-gradient(135deg, #d7c29d, #8c785c);
+}
+
+.scene figcaption {
+    margin-top: 14px;
+    font-size: .98rem;
+    font-style: italic;
+    line-height: 1.5;
+    color: #6f563d;
+}
+
+.scene figcaption .bracket-label { margin-right: .6em; font-style: normal; }
+
+
+/* ==========================================================================
+   10. A TÖRTÉNET VÉGE ÉS "VISSZA AZ ELEJÉRE" (Y: aláírás + Back to blog)
+   ========================================================================== */
+.story-end {
+    margin: 56px 0 0;
+    text-align: center;
+}
+
+/* Klasszikus nyomdai elválasztó (kihegyesedő vonal + rombusz + pontok).
+   Az alakot a <body> elején lévő #ornament-shape adja; a szín az aktuális szövegszín. */
+.divider {
+    display: block;
+    width: min(240px, 62%);
+    height: 16px;
+    margin: 80px auto 0;
+    color: var(--muted);
+}
+
+.story-end .divider { margin-top: 0; }
+
+.back-link {
+    display: block;
+    width: fit-content;
+    margin: 30px auto 0;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--ink);
+    font-family: var(--font-ui);
+    font-size: .7rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    text-decoration: none;
+}
+
+
+/* ==========================================================================
+   11. LÁBLÉC (Y: oszlopos lábléc, apró feliratok)
+   ========================================================================== */
+.site-footer {
+    width: min(1040px, calc(100% - 36px));
+    margin: 90px auto 0;
+    padding: 34px 0 190px;      /* alul hely a fix lejátszónak */
+    border-top: 1px solid var(--hair);
+}
+
+.footer-cols {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.footer-cols h4 { margin: 0 0 14px; }
+
+.footer-cols ul { margin: 0; padding: 0; list-style: none; }
+.footer-cols li { margin-bottom: 8px; font-size: 1rem; }
+.footer-cols a  { text-decoration: none; border-bottom: 1px solid transparent; }
+.footer-cols a:hover { border-bottom-color: var(--ink); }
+
+.footer-base {
+    margin-top: 44px;
+    padding-top: 18px;
+    border-top: 1px solid var(--hair);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+@media (max-width: 700px) { .footer-cols { grid-template-columns: 1fr; } }
+
+
+/* ==========================================================================
+   12. ALSÓ HANGVEZÉRLŐ
+       Áttetsző, blur-ös; összecsukva csak a nyitógomb marad.
+   ========================================================================== */
+.player {
+    position: fixed;
+    z-index: 30;
+    inset: auto 0 0 0;
+    display: grid;
+    grid-template-columns: auto minmax(120px, 1fr) auto;
+    align-items: center;
+    gap: 12px 18px;
+    padding: 12px clamp(12px, 3vw, 34px);
+    /* iOS-stílus: nincs szín, vonal vagy árnyék – csak az elmosás */
+    background: transparent;
+    backdrop-filter: blur(20px) saturate(1.6);
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    transition: transform .32s ease, opacity .32s ease;
+}
+
+/* Összecsukott állapot */
+.player.is-hidden { transform: translateY(calc(100% - 2px)); }
+
+/* A felnyitógomb feljebb emelése */
+.player.is-hidden .player-toggle {
+    position: relative;
+    z-index: 1;
+    transform: translateY(-64px);
+}
+
+/* Összecsukva csak a gomb maradjon látható */
+.player.is-hidden > :not(.player-toggle) {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.disc {
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+}
+
+.track-title { font-size: .95rem; line-height: 1.3; }
+.subtitle    { color: var(--muted); font-size: .76rem; line-height: 1.35; }
+
+.controls {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 14px 22px;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+}
+
+.small-label { font-family: var(--font-ui); font-size: .62rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+
+.status {
+    grid-column: 1 / -1;
+    color: var(--muted);
+    font-size: .72rem;
+    line-height: 1.3;
+}
+
+.player-toggle { display: inline-block; align-self: start; min-width: 42px; }
+
+
+/* ==========================================================================
+   13. KIS KIJELZŐ (telefon)
+   ========================================================================== */
+@media (max-width: 700px) {
+    main { width: calc(100% - 30px); margin-top: 90px; }
+
+    .title-image { width: min(68vw, 250px); }
+    .chapter-title { margin-top: 64px; }
+    .scene { margin: 32px 0 38px; }
+
+    .player {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: 8px 12px;
+        padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+    }
+
+    .disc { width: 29px; height: 29px; font-size: .9rem; }
+    .track-title { font-size: .82rem; }
+    .subtitle    { font-size: .68rem; }
+
+    .controls {
+        grid-column: 1 / -1;
+        justify-content: space-between;
+        gap: 12px 16px;
+    }
+
+    .controls button,
+    .controls select { padding: 7px 9px; font-size: .62rem; }
+
+    input[type="range"] { width: 52px; }
+    .status { font-size: .66rem; }
+}
+
+
+/* ==========================================================================
+   14. CSÖKKENTETT MOZGÁS (kisegítő beállítás)
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { transition-duration: .01ms !important; }
+    .parallax { transform: none !important; }
+}
