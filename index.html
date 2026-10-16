@@ -1,0 +1,392 @@
+<!doctype html>
+<!--
+    A KÖD ALJÁN — hangzó novella
+    ============================================================
+    Felépítés:
+      1. <head>      – betűtípusok, teljes CSS (szakaszokra bontva)
+      2. <body>      – fejléc, menü, cikk, hangsávok, lábléc, lejátszó
+      3. <script>    – hang, menü, fejléc, lejátszó (szakaszokra bontva)
+
+    A SZÖVEG SZERKESZTÉSE:
+      Az 50 bekezdés (.paragraph) közvetlenül a HTML-ben van.
+      Minden bekezdés: <div class="paragraph"><p>…</p></div>
+      A "Lorem ipsum" helyére írd/másold be a valódi szöveget.
+      A zeneváltó bekezdések (1., 10., 20., 30., 40., 50.) kapják a
+      "music-trigger" osztályt – ezeket ne töröld.
+
+    KÉPEK:   images/title-square.jpg · images/landscape.jpg
+             images/scene-1.jpg · images/scene-2.jpg
+    HANGOK:  audio/1.mp3 … audio/6.mp3 (mp3 / ogg / m4a / wav)
+-->
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Elmore Leonard | Rum Punch</title>
+
+<!-- Betűtípusok:
+     EB Garamond = olvasószöveg (nyomtatott hatás)
+     Jost        = apró, nagybetűs, ritkított feliratok (menü, címkék, vezérlők) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+   <link rel="stylesheet" href="cssjs/style.css">
+</head>
+
+<body id="top">
+
+<!-- Nyomdai elválasztó (díszvonal) alakja – a .divider elemek hivatkoznak rá.
+     Szerkezet: balról kihegyesedő vonal · pont · rombusz · pont · jobbról kihegyesedő vonal -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+        <g id="ornament-shape" fill="currentColor">
+            <path d="M0 8 L100 4.8 L100 11.2 Z"/>
+            <circle cx="107" cy="8" r="1.5"/>
+            <path d="M120 1.5 L126.5 8 L120 14.5 L113.5 8 Z"/>
+            <circle cx="133" cy="8" r="1.5"/>
+            <path d="M240 8 L140 4.8 L140 11.2 Z"/>
+        </g>
+    </defs>
+</svg>
+
+<!-- Háttér-parallax (csak dekoráció) -->
+<div class="parallax" id="parallax" aria-hidden="true"></div>
+
+
+<!-- ==========================================================================
+     FEJLÉC – bal: menüsor · közép: név · jobb: megjegyzés
+     ========================================================================== -->
+<header class="site-header" id="siteHeader">
+    <nav class="header-nav" aria-label="Gyorsmenü">
+        <a href="#story">Novella<sup class="count">01</sup></a>
+        <a href="#scene1">Képek<sup class="count">02</sup></a>
+    </nav>
+
+    <div class="brand">Elmore Leonard</div>
+
+    <div class="header-note">Rum Punch - regény zenével</div>
+</header>
+
+<!-- Menügomb (két vonal ↔ X) -->
+<button class="menu-toggle" id="menuToggle" type="button"
+        aria-expanded="false" aria-controls="siteMenu" aria-label="Menü megnyitása">
+    <span class="menu-icon" aria-hidden="true"></span>
+</button>
+
+<!-- Legördülő menü -->
+<nav class="site-menu" id="siteMenu" aria-label="Főmenü" aria-hidden="true">
+    <a href="#top"       data-menu-close>Az oldal teteje <sup class="count">01</sup></a>
+    <a href="#story"     data-menu-close>A novella <sup class="count">50</sup></a>
+    <a href="#scene-end" data-menu-close>A történet vége <sup class="count">§</sup></a>
+</nav>
+
+
+<!-- ==========================================================================
+     FŐ TARTALOM
+     ========================================================================== -->
+<main>
+
+    <!-- Cikkfej: dátum → cím → 【címke】 → kép → bejegyzés-sorszám → bevezető -->
+    <header class="article-head">
+        <time class="article-date label" datetime="2026-10-16">2026.10.16</time>
+
+        <h1>1. fejezet</h1>
+
+        <p class="index-tag bracket-label">【 Tartalomjegyzék · Regény zenével 】</p>
+
+        <!-- Négyzetes címkép: images/title-square.jpg -->
+        <div class="title-image" role="img" aria-label="Négyzetes címkép"></div>
+
+        <span class="entry-label label">Elmore Leonard - Rum Punch</span>
+
+        <p class="intro">
+            Görgess lassan. A történet ritmusával együtt a háttér hangja is megváltozik.
+        </p>
+
+        <!-- Zeneindító gomb (a lenti lejátszó „Hang indítása” gombját működteti) -->
+        <div class="intro-music">
+            <button id="introMusicButton"
+                    class="intro-music-button"
+                    type="button"
+                    aria-label="Háttérzene indítása"
+                    title="Háttérzene indítása">
+                <svg class="intro-music-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M11 5 6 9H3v6h3l5 4V5Z"></path>
+                    <path d="M15.5 8.5a5 5 0 0 1 0 7"></path>
+                    <path d="M18.5 5.5a9 9 0 0 1 0 13"></path>
+                </svg>
+                <span id="introMusicLabel">Zene indítása</span>
+            </button>
+        </div>
+    </header>
+
+
+    <!-- ======================================================================
+         A NOVELLA SZÖVEGE
+         50 bekezdés, mindegyik: <div class="paragraph"><p>…</p></div>
+         A "music-trigger" osztályú bekezdéseknél vált a zene.
+         ====================================================================== -->
+    <article id="story">
+
+            <!-- ═════ 1. hangsáv · Csend és papírzörej (a 1. bekezdéstől) ═════ -->
+            <h3 class="chapter-title" id="chapter-1">
+                <span class="chapter-roman">I</span>
+            </h3>
+            <!-- 1. bekezdés -->
+            <div class="paragraph paragraph--chapter music-trigger" id="p-1" data-paragraph="1" data-number="01">
+                <p>Vasárnap délelőtt Ordell elvitte Loiust Palm Beach belvárosába, hogy együtt nézzék meg a fehér felsőbbrendűség tüntetését. </p>
+                
+            </div>
+            <!-- 2. bekezdés -->
+            <div class="paragraph" id="p-2" data-paragraph="2" data-number="02">
+                <p>— Fiatal kopasz nácik — mondta Ordell. — Nézd már, még kis náci luvnyák is vonulnak a Worth Avenue-n. Te ezt el tudod hinni? Utánuk a Ku-Klux-Klan, ma csökkentett létszámban. Páran zöldben virítanak, biztos ez lesz a csuklyások új tavaszi kollekciójának a színe. Ha jól látom, mögöttük a „Motorosok a rasszizmusért” tagjai jönnek, lánykori nevükön: a Déli Légió. Menjünk tovább, vágjunk itt át! — adta ki a jelszót Ordell, és húzta magával Louist. — Meg akarok mutatni valakit. Kíváncsi vagyok, téged kire emlékeztet. Azt mondta, végig fognak masírozni a South County úton, és a városháza szökőkútjának lépcsőjén lesznek a beszédek. Láttál már ennyiféle rendőri osztagot? Persze, hogy láttál, de nem ennyi különböző egyenruhát egyszerre. Ezek nem szaroznak, rohamsisak, gumibot, van ezeknél minden. Maradj a járdán, mert ha nem, simán fejbe kúrnak. Biztosítják az utca rendjét... a náciknak.</p>
+            </div>
+            <!-- 3. bekezdés -->
+            <div class="paragraph" id="p-3" data-paragraph="3" data-number="03">
+                <p>Egyre többen fordultak Ordell felé, hogy megnézzék maguknak.</p>
+                <p>— Haver, mennyi fotós és kamera — folytatta. — Nagy esemény ez a szarság, mindenki idejött, hogy saját szemével láthassa. Amúgy vasárnaponként legfeljebb gazdag hölgyek járnak ide a zsebkutyáikkal pisilni. Mármint csak a kutyák, nem a nők.</p>
+                <p>Egy előttük álló lány hátramosolygott a válla felett, mire Ordell megszólította:</p>
+                <p>— Mi újság, baby? Jól érzed magad? — de valójában keresztülnézett rajta és már Louishoz intézte szavait, miközben folyamatosan tört át a tömegen, egyre közelebb jutva az utcához. — Azt hiszem látom már a faszit. Igen, ott is van. Fekete ing és nyakkendő? Egy nagyra nőtt kopasz náci. Nagyfiúnak szólítom. Szereti, ha így hívom..</p>
+                <p>— Ez Richard — mondta Louis –, Jézusom.</p>
+                <p>Tisztára úgy néz ki, mi? Emlékszel, Richardnak mennyi náci biszbasszal volt tele a háza? A fegyvereire? Na, Nagyfiúnak mindenből több van</p>
+            </div>
+            <!-- 4. bekezdés -->
+            <div class="paragraph" id="p-4" data-paragraph="4" data-number="04">
+                 <p>— Nagyon komolyan veszi magát, nézz már rá — így Louis.</p>
+                 <p>— Hatalmat akar. Fegyverbuzi. Tudod hol láthatsz hozzá hasonló arcokat? A fegyverkiállításokon.</p>
+                 <p>Ordell színpadias szünetet tartott. Jó esetben adta volna magát a kérdés, mégis mi dolga volt egy fegyverkiállításon, de Louis leszarta, mert teljesen lefoglalta a náci csajok stírölése. Egytől-egyig vidéki, csontsovány bugrisok voltak, fiúsan rövidre vágott hajjal. </p>
+                 <p>Ordell témát váltott: </p>
+                <p>— Nekem azért van valamim, ami kigyógyítaná őket, és csak úgy ragyogna a szemük.
+                <p>Az emberek ismét őt bámulták, páran vigyorogtak is. Louis kikeveredett a tömegből, Ordellnek sietve kellett szednie a lábait, hogy utol tudja érni. Louis válla sokkal szélesebb volt, mint régen, alaposan kigyúrta magát a börtönben. </p>
+                <p>— Erre —  intett Ordell, és a két régi haver elindult a felvonulást beelőzve a South County úton: Ordell Robbie és Louis Gara, egy fakó fekete srác és egy sötétbőrű fehér fickó egyenesen Detroitból, ahol egy bárban ismeretlenül beszédbe elegyedtek, így hamar fény derült arra, hogy mindketten ugyanabban a dél-ohio-i börtönben ültek, megadva ezzel a közös kapcsolódási pontokat. Louis nem sokkal később Texasban tevékenykedett, de ismét rács mögött találta magát. Amikor hazatért, Ordell felvázolta neki nagy vonalakban a millió dolláros ötletét: adott egy gazdag simlis fazon, aki az illegálisan szerzett vagyonát a Bahamákon rejtegeti. Mi lenne, ha elrabolnák a feleségét? Louis belement. A közös akciójuk csúfos véget ért, és akkor Louis azt mondta: soha többé. Ez tizenhárom évvel ezelőtt történt… </p>
+            </div>
+            <!-- 5. bekezdés -->
+            <div class="paragraph" id="p-5" data-paragraph="5" data-number="05">
+                <p>Most Ordellnek volt egy újabb terve. Louis sejtette, hogy nem véletlenül nézik a bőrfejűek és a csuklyások parádéját az utcán.</p>
+                <p>— Emlékszel arra, amikor szabadultál Huntsville-ből és bemutattalak Richardnak? — kérdezte Ordell.</p>
+                <p>Kezdetét vette a beetetés, Louis most már biztosra vette.</p>
+                <p>— Erre emlékeztet a mai nap — folytatta Ordell. — Szerintem sorsszerű. Most a floridai állami börtönből szabadultál, és ezúttal Nagyfiút mutatom be neked, mintha csak Richard tért volna vissza a halálból.</p>
+                <p>— Amire emlékszem — kezdett bele Louis –, hogy bárcsak soha az életben ne találkoztam volna Richarddal. Mi a fene ez veled és a nácikkal?</p>
+                <p>— Poén őket bámulni — válaszolt Ordell. — Nézd meg a zászlajukat, azzal az elkúrt villámjellel. Nehéz eldönteni, hogy az SS-re vagy Marvel Kapitányra akarnak hivatkozni.</p>
+                <p>— Ki akarod próbálni rajtam egy újabb millió dolláros ötletedet? — kérdezte Louis.
+                <p>Ordell arca komorrá vált, hűvös tekintete a felvonulókról haverja felé fordult: — Az én kocsimmal jöttél, haver. Ez nem csak egy ötlet, ebben valódi pénz van.</p>
+                <p>— És minek mutogatod nekem ezt a nácit?</p>
+            </div>
+            <!-- 6. bekezdés -->
+            <div class="paragraph" id="p-6" data-paragraph="6" data-number="06">
+                <p>— Nagyfiút? Gerald az igazi neve. Egyszer Jerrynek hívtam, majdnem elemelt a földtől a faszi, és azt mondta: „Az nem az én nevem, kisember.” Ismertettem vele, hogy támogatom a faji szegregációt, így szerinte okés vagyok. Egyszer találkoztam vele, egy fegyverkiállításon.</p>
+                <p>Ezt megint Lousinak dobta fel. </p>
+                <p>— Nem válaszoltál. Mit keresünk itt?</p>
+                <p>— Mondtam már. Kire emlékeztet Nagyfiú? Idefigyelj, nem fogod elhinni ki van még itt. Egy nő. Kitalálod?</p>
+                <p>— Lövésem sincs — ingatta a fejét Louis.</p>
+                <p>— Melanie — vigyorgott Ordell.</p>
+                <p>— Mondd, hogy csak viccelsz.</p>
+                <p>Még egy ismerős régről, tizenhárom évvel ezelőttről.</p>
+                <p>— Kapcsolatban maradtunk — magyarázta Ordell. — Melanie egyszer csak felhívott… A Palm Beach Shore-i házamban van. Kiváncsi vagy rá?</p>
+                <p>— Veled él?</p>
+                <p>— Mondjuk úgy, néha ott is vagyok. Ha gondolod, beugorhatunk délután. Melanie még mindig egy fincsi nagydarab lány, talán egy kicsit még nagyobb darab lett. Haver, én mondom, a sors keményen odatette magát, hogy mind együtt lehetünk itt. Most azon agyalok, bemutatom Nagyfiút Melanienak.
+                Louis érezte, itt nagyon készül valami.</p>
+                <p>— Minek?</p>
+            </div>
+            <!-- 7. bekezdés -->
+            <div class="paragraph" id="p-7" data-paragraph="7" data-number="07">
+                <p>— Hogy lássuk mi történik. Szerintem ütős lenne. Ismered Melanie-t, semmit sem változott. El tudod képzelni őt ezzel a seggfej nácival? 
+                <p>Ordell egy titkot őrző gyerekre hasonlított, aki majd kipukkad, hogy végre elmondhassa, és csak a megfelelő kérdést várja. </p>
+                <p>— Halvány gőzöd sincs baszd meg, hogy hányadán állsz, igaz? Kijössz a sittről, újrakezded, majd vissza az egész. Látom, megváltál a bajszodtól, és lett egy ősz tincs a hajadban. De formában vagy, az oké.</p>
+                <p>— Hát, te meg mit csináltál? — kérdezte Louis. — Kivasaltattad a hajad? Régen afro-frizurád volt.</p>
+                <p>— A divat diktál, haver — Ordell óvatosan végigsimította a haját, érezte, hogy jól áll, majd ujjai közé fogta a copfját és elkezdte csavargatni. — Nem, el sem tudom képzelni, hogy te egyáltalán tudnád, mit akarsz.</p>
+                <p>— Nem tudod, mi?</p>
+                <p>— Úgy bámulsz, mint egy priuszos. Valamit mégis tanultál a sitten. Különben is, úgy nézel ki, mint egy benzinkutas. Már csak a Lou felirat hiányzik a zsebedről.  Mosd le a szélvédőt, és nézd meg az olajszintet…</p>
+                <p>Ordell aztán mosolyra húzta a száját, jelezve, csak ugratja. 
+                Öltözetét a vászon és az arany uralta, egy kereknyakú, narancssárga pulóverben és fehér nadrágban volt, arany csillogott a nyakában, csuklóján és két ujján is.</p>
+                <p>— Gyerünk, nézzünk, mint a moziban.</p>
+            </div>
+            <!-- 8. bekezdés -->
+            <div class="paragraph" id="p-8" data-paragraph="8" data-number="08">
+                <p>— Csak itt te vetítesz — zárta le Louis.</p>
+                <p>Ordell megint elmosolyodott, miközben ritmusosan mozgatta vállait, akár egy bokszoló. A tömeg mögé sétáltak, a szökőkút előtti lépcsőket sárga rendőrségi szalag zárta el. Odafent egy fiatal náci tartott beszédet, mellette a többiek a felsőbbrendűségüket hangsúlyozó ruháikban a lent összesereglett embertömeg felé fordulva ácsorogtak. Ordell nekilendült, hogy keresztülvágjon közöttük, szeretett volna közelebb kerülni, ám Louis megragadta a karját. </p>
+                <p>— Én be nem megyek oda.</p>
+                <p>— Haver! — fordult Ordell Loius felé. — Ez nem egy börtönudvar, itt nincs senkinél bökő.</p>
+                <p>— Veled én nem megyek be.</p>
+                <p>— Gond egy szál se, nem is kell.</p>
+                <p>Sikerült találniuk egy viszonylag jó helyet, ahonnan látni lehetett a fiatal nácit. Ordítva kérdezte, mit akarunk? A haverjai, a náci csajok és a többi félkegyelmű odafent pedig hasonlóképpen, kórusban válaszoltak neki, hogy „Fehér uralmat!” Egészen addig ismételték ezt, amíg a fiatal náci azt nem kiabálta: a világ egy nap meg fogja tudni, hogy Adolf Hitlernek igaza volt! Erre a lenti tömeg morajlani kezdett, és visszakiabáltak neki, hülyének és fogyatékosnak nevezték. A fiatal náci magából kikelve ordította, hogy vissza fogják szerezni ezt a földet a népüknek, mire lentről visszakérdeztek, mégis milyen népről beszél, azok is ilyen seggfejek? </p>
+            </div>
+            <!-- 9. bekezdés -->
+            <div class="paragraph  music-trigger" id="p-9" data-paragraph="9" data-number="09">
+                <p>— Gyere fel a Riv’era Beachre, ott mondd el ezeket — kiáltott egy fekete nő a tömegből –, és halott ember leszel.</p>
+                <p>— Sieg heil! — kiabálta a fiatal náci, olyan erővel, ami csak a torkán kifért, addig ismételte, mígnem a bolondok is csatlakoztak hozzá, karlendítéssel súlyosbítva.</p>
+                <p>A tömegből fiatal srácok a „rasszista rohadékok” skandálásba kezdtek, majd pedig egyre hangosabban hangzott fel a „takarodjatok haza” felkiáltás, így nem volt a földtől elrugaszkodott gondolat, hogy az előadás mára véget ért.</p>
+                <p>— Húzzunk innen — mondta Ordell.</p>
+            </div>
+             <!-- ─── 1. jelenetkép (a 15. bekezdés után) · cseréld: images/scene-1.jpg ─── -->
+            <figure class="scene" id="scene1">
+                <div class="scene-image scene1" role="img"
+                     aria-label="Első jelenet képe">
+                </div>
+                <figcaption>
+                    <span class="bracket-label">【 ÁBRA 01. 】</span>
+                    Az első jelenet képe. Ide kerülhet egy rövid képaláírás.
+                </figcaption>
+            </figure>
+            
+            <svg class="divider" viewBox="0 0 240 16" aria-hidden="true"><use href="#ornament-shape"/></svg>
+            <h3 class="chapter-title" id="chapter-2">
+                <span class="chapter-roman">II</span>
+            </h3>
+            <!-- 10. bekezdés -->
+            <div class="paragraph paragraph--chapter music-trigger" id="p-10" data-paragraph="10" data-number="10">
+                <p>A nyitott tetejű, fekete Mercedes kabriót az Ocean Boulevardon hagyták; amikor visszaértek az autóhoz, a parkolóóra már régen lejárt, a vezetőoldali ablaktörlő alatt ott virított a büntetőcédula. Ordell kihúzta a cédulát és az utcára dobta. Louis figyelt, de szó nélkül hagyta. Szinte az egész út alatt némán ült az autóban, a West Palm előtti középső hídon eredt meg a nyelve:</p>
+            </div>
+            <!-- 11. bekezdés -->
+            <div class="paragraph" id="p-11" data-paragraph="11" data-number="11">
+                <p>— Miért akartad megmutatni nekem azt a faszit? Niggernek hívott téged. Szeretnéd, ha valaki szilánkosra törné a rohadék lábait?</p>
+                <p>— Mindig csak az a kurva bosszú — fakadt ki Ordell. —Biztos a digókról ragadt rád, akikkel folyton lógsz. Nincs semmi amire jobban vágynak, mint a bosszú. Nyakamat rá.</p>
+                <p>—  Tudni akarod, hol lógok? — kérdezte Louis. — Menjünk az Olive sugárútra, fordulj jobbra, fel a Banyan útig, ami régen az Első utca volt, na és ott fordulj majd balra. — Kis idő múltán, amikor már a Olive-on jártak, folytatta: — Az ott jobboldalt a bíróság.</p>
+                <p>— Tudom jól, hol van a bíróságok — mondta Ordell. Bekanyarodott a Banyan útra, és egyenesen a Dixie főút felé hajtott. Az utca közepén Louis rászólt, hogy álljon félre.</p>
+                <p>— Pontosan ott, a fehér épületben — mutatott rá Louis —, ott szoktam lógni.</p>
+                <p>Ordell az utca túloldalán egy földszintes épületet látott, amelynek kirakatán a max cherry óvadékügynökség felirat díszelgett.</p>
+                <p>— Egy óvadékügynöknek dolgozol? — kérdezte Louist.  — Korábban mintha azt mondtad volna, hogy valami menő digó biztosítónál vagy.</p>
+            </div>
+            <div class="paragraph music-trigger" id="p-12" data-paragraph="12" data-number="12">
+                <p>— A Glades Mutual, Miamiban. Max Cherry állítja ki az óvadékzálogaikat. Jómagam az irodában ülök csak, ha valaki nem jelenik meg a bírósági tárgyaláson, nekem kell begyűjteni.</p>
+                <p>— Csakugyan? — Ordell számára ez már jobban hangzott annál, mintha Louis egy fejvadász lenne, aki szökésben lévő rosszfiúkat üldöz.</p>
+                <p>— Főleg azért ragaszkodnak hozzám, hátha én be tudok hozni nekik olyan drogbizniszes óvadékot, ami százötvenezernél többet ér.</p>
+                <p>— Ja, gondolom szereztél a hűvösön néhány hasznos kontaktot. Ezért vettek fel? — kérdezte Ordell.</p>
+            </div>
+            
+            <!-- 13. bekezdés -->
+            <div class="paragraph" id="p-13" data-paragraph="13" data-number="13">
+                <p>— Az egyikőjük a cellatársam volt, kinyírta az asszonyt. Azt mondta, ha kijutok, keressem fel bátran a barátait. Elmentem hozzájuk, azzal kezdték, ismerek-e kolumbiaiakat. Mondtam, persze, párat ismerek. Néhány srácot egy J.J. nevű csalón keresztül ismertem meg, meséltem róla legutóbb, tudod, akit újra bevarrtak. Na, nála lakom most.</p>
+                <p>Louis elővett a munkás-ingje zsebéből egy doboz cigit, és folytatta: </p>
+                <p>— Szóval az a meló, hogy felkeresem ezeket a kolumbiai ürgéket szerte South Beach-en, és Max Cherry névjegyét osztogatom nekik. „Ha a törvény keze fojtogat, én megoldom a gondodat.” Van egy másik, amin az áll: „Volt egyszer egy óvadék”, alatta név, telefonszám, minden ami kell.</p>
+                <p>Louis újra a zsebében kutatott, most a gyufásdobozt kereste.</p>
+                <p>— Igen? — türelmetlenkedett Ordell.</p>
+                <p>— Ennyi. A legtöbbször csak ott ülök.</p>
+                <p>— A kolumbiaiak nem basztatnak?</p>
+                <p>— Miért tennék? Tudják jól, honnan jöttem — Louis a hüvelykujja körmén meggyújtotta a gyufaszálat. — Meg olyan piszok hangosan üvöltetik azt a cha-cha zenéjüket, hogy amúgy se lehet normálisan dumálni velük.</p>
+                <p>Ordell elővette a saját, drága cigarettáját, Louis pedig két tenyerével kelyhet formálva óvta a lángot, és tüzet adott a haverjának.</p>
+                <p>— Szerintem te nem vagy boldog, Louis.</p>
+            </div>
+            <!-- 14. bekezdés -->
+            <div class="paragraph" id="p-14" data-paragraph="14" data-number="14">
+                <p>— Bármiben is veszel részt, én nem akarok benne lenni, világos? Egyszer már bőven elég volt.</p>
+                <p>— Azt hiszed te vagy megbízhatóság szobra, mi? Mondd meg, én basztam el az emberrablást?</p>
+                <p>— Te vontad bele Richardot.</p>
+                <p>— Most ez hogy jön ide?</p>
+                <p>— Tudtad, hogy megpróbálja majd megerőszakolni.</p>
+                <p>— Jó, de te nem hagytad. De tudod, nem ez rontotta el a bulit, Louis. Pontosan tisztában vagy vele, hogy hol baszódott el. Ha azt mondom a férjnek, hogy fizess vagy soha többé nem látod az asszonyt, ez pofonegyszerű, nem? De az nem volt benn a pakliban, hogy amúgy se akarta volna látni, hiszen Melanieval csalta a bahamai kúrókéglijében. Ilyen lapokkal a kézben nem lehet tárgyalni, és fenyegetni sem, egyszerűen esélyünk sem volt tisztességes üzletre.</p>
+                <p>— Az az egész balhé halálra volt ítélve — tette hozzá Louis. — Azt se tudtuk, mit csinálunk.</p>
+                <p>— Ó, mekkora szakértő lett itt valakiből. Mondd csak, ki ült háromszor és ki egyszer? Idefigyelj, már vannak embereim. Tesók, akik elvégzik a kemény melókat. Van egy emberem Freeportban, emlékszel Mr. Walkerre? Van egy jamaicai emberem, aki fejszámoló. Összeadja a számokat, kiszorozza mi mennyit ér — Ordell csettintett egyet — se perc alatt.</p>
+                <p>— Van egy könyvelőd — pontosított Louis. — Jó neked!</p>
+                <p>— Kértelek én, hogy dolgozz nekem?</p>
+                <p>— Nem, még nem.</p>
+            </div>
+            <!-- 15. bekezdés -->
+            <div class="paragraph music-trigger" id="p-15" data-paragraph="15" data-number="15">
+                <p>— Képben vagy, mi az az M-60-as gépfegyver?</p>
+                <p>— Az egy nagy, katonai cucc. </p>
+                <p>— Hármat adtam el belőle, darabonként húsz rongyért, abból vettem ezt az autót — mondta Ordell. — Mégis mi a faszért lenne szükségem rád?</p>
+            </div>
+                <!-- ─── 2. jelenetkép (a 35. bekezdés után) · cseréld: images/scene-2.jpg ─── -->
+            <figure class="scene" id="scene2">
+                <div class="scene-image scene2" role="img"
+                     aria-label="Második jelenet képe">
+                </div>
+                <figcaption>
+                    <span class="bracket-label">【 ÁBRA 02. 】</span>
+                    M60-as géppuska
+                </figcaption>
+            </figure>
+           
+    </article>
+
+
+    <!-- A történet vége -->
+    <div id="scene-end" class="story-end">
+        <svg class="divider" viewBox="0 0 240 16" aria-hidden="true"><use href="#ornament-shape"/></svg>
+    </div>
+    <a class="back-link" href="#top">↑ Vissza az elejére</a>
+</main>
+
+
+<!-- ==========================================================================
+     LÁBLÉC
+     ========================================================================== -->
+<footer class="site-footer">
+    <div class="footer-cols">
+        <div>
+            <h4 class="label">Olvasás</h4>
+            <ul>
+                <li><a href="#top">Az oldal teteje</a></li>
+                <li><a href="#story">A novella</a></li>
+                <li><a href="#scene-end">A történet vége</a></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="label">Hang</h4>
+            <ul>
+                <li>Zene indítása: a lenti sáv gombjával</li>
+                <li>A zene hat ponton vált</li>
+                <li>Áttűnés: 3 másodperc</li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="label">Tudnivalók</h4>
+            <ul>
+                <li>Betűméret: a lenti sávban állítható</li>
+                <li>A lejátszó összecsukható</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer-base label">
+        <span>Elmore Leonard | Rum Punch</span>
+        <span>§</span>
+    </div>
+</footer>
+
+
+<!-- ==========================================================================
+     ALSÓ HANGVEZÉRLŐ
+     ========================================================================== -->
+<section class="player" id="player" aria-label="Háttérzene vezérlése">
+    <div class="disc" aria-hidden="true">♫</div>
+
+    <div>
+        <div class="track-title" id="trackTitle">Csend és papírzörej</div>
+        <div class="subtitle" id="subtitle">A zene a 10. bekezdésnél vált</div>
+    </div>
+
+    <button class="player-toggle" id="playerToggle" type="button"
+            aria-expanded="true" aria-label="Lejátszó összecsukása">⌄</button>
+
+    <div class="controls">
+        <button id="toggle" type="button">▶ Hang indítása</button>
+
+        <div class="control-group">
+            <label class="small-label" for="volume">Hangerő</label>
+            <input id="volume" type="range" min="0" max="100" value="35" aria-label="Hangerő">
+        </div>
+
+        <div class="control-group">
+            <label class="small-label" for="fontSize">Betűméret</label>
+            <select id="fontSize" aria-label="Betűméret">
+                <option value="1rem">Kicsi</option>
+                <option value="1.18rem" selected>Közepes</option>
+                <option value="1.35rem">Nagy</option>
+                <option value="1.55rem">Extra nagy</option>
+            </select>
+        </div>
+
+        <button id="mute" type="button" aria-pressed="false">Némítás</button>
+    </div>
+
+    <div class="status" id="status" role="status">
+        Ha a böngésző blokkolja az automatikus hangot, indítsd el a gombbal.
+    </div>
+</section>
+
+
+<script src="cssjs/script.js"></script>
+</body>
+</html>
